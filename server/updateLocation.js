@@ -42,7 +42,7 @@ admin.initializeApp({
 });
 
 // Initialize Telegram Bot
-const bot = new TelegramBot("7770845660:AAFYz-qcTZ4KrNf1K_Dmk1LewKNK2-VMMnY", { polling: true });
+const bot = new TelegramBot("TELEGRAM-BOT-KEY", { polling: true });
 
 bot.on("location", async (msg) => {
   const chatId = msg.chat.id;
