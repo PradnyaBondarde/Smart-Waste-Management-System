@@ -1,0 +1,18 @@
+# Ignore specific service account / secret files
+*service-account*.json
+*admin-sdk*.json
+firebase-admin-sdk*.json
+server/firebase-admin-sdk.json
+# Common secret files
+secret-*.json
+*.key
+*.pem
+.env
+.env.local
+.env.*.local
+
+# Typical node/python artifacts (optional but helpful)
+node_modules/
+venv/
+__pycache__/
+.DS_Store

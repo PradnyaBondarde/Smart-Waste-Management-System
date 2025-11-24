@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <title>Driver Details Form</title>
+    <style>
+        :root {
+            --primary-color: #1a2a36;
+            --accent-color: #2c4356;
+            --light-accent: #e7eef3;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--primary-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-button {
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+            padding: 8px 15px;
+            border-radius: 5px;
+            background-color: var(--light-accent);
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #d0dde9;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .form-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .form-description {
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .required:after {
+            content: " *";
+            color: var(--danger-color);
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 5px;
+            border: 1px solid #d0d7de;
+            background-color: white;
+            color: var(--primary-color);
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(42, 67, 86, 0.2);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-col {
+            flex: 1;
+        }
+
+        .photo-upload-container {
+            border: 2px dashed #d0d7de;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            background-color: var(--light-accent);
+        }
+
+        .photo-preview {
+            width: 100%;
+            height: 200px;
+            margin-top: 15px;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 14px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-color);
+        }
+
+        .btn-upload {
+            background-color: var(--accent-color);
+            color: white;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .submission-message {
+            text-align: center;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .success-message {
+            background-color: rgba(46, 204, 113, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .error-message {
+            background-color: rgba(231, 76, 60, 0.1);
+            border: 1px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+
+        .submission-message {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .submission-message h3 {
+            color: var(--success-color);
+            margin-bottom: 15px;
+        }
+
+        .submission-message p {
+            margin-bottom: 10px;
+        }
+
+        .submission-message strong {
+            color: var(--primary-color);
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Driver Details Form</h1>
+        </header>
+
+        <div class="form-container">
+            <p class="form-description">
+                Please fill out this form to store your driver details. Fields marked with * are required.
+            </p>
+
+            <form id="driver-details-form">
+                <div class="form-group">
+                    <label for="ward" class="required">Ward</label>
+                    <select id="ward" name="ward" required>
+                        <option value="" disabled selected>Select your ward</option>
+                        <option value="ward_A">Ward A</option>
+                        <option value="ward_B">Ward B</option>
+                        <option value="ward_C">Ward C</option>
+                        <option value="ward_D">Ward D</option>
+                        <option value="ward_E">Ward E</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="driver-name" class="required">Driver Name</label>
+                    <input type="text" id="driver-name" name="driver-name" placeholder="Enter your name" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="driver-id">Driver ID</label>
+                            <input type="text" id="driver-id" name="driver-id" placeholder="E.g. klbd000">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="chat-id">Chat ID</label>
+                            <input type="text" id="chat-id" name="chat-id" placeholder="E.g. 5371613385">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="age" class="required">Age</label>
+                    <input type="number" id="age" name="age" placeholder="Enter your age" required min="18" max="80">
+                    <p class="help-text">Age must be between 18 and 80.</p>
+                </div>
+
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="phone" class="required">Phone Number</label>
+                        <input type="text" id="phone" name="phone" placeholder="Enter your phone number" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="date-of-join" class="required">Date of Join</label>
+                    <input type="date" id="date-of-join" name="date-of-join" required>nput type="date" id="date-of-join"
+                    name="date-of-join" required>
+                </div>iv>
+
+                <div class="form-group">
+                    <div class="form-group">
+                        <button type="submit" id="submit-button" class="btn btn-primary">Submit</button>class="btn
+                        btn-primary">Submit</button>
+                    </div>
+            </form>
+        </div>
+
+        <div id="error-message" class="error-message hidden">
+            <div id="error-message" class="error-message hidden">
+                <p>Sorry, an error occurred while submitting the form. Please try again.</p>rror occurred while
+                submitting the form. Please try again.</p>
+                <p id="error-details"></p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"; ic.com / firebasejs / 10.8.0 / firebase - app.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"; c.com / firebasejs / 10.8.0 / firebase - database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBPWNvZyLG6V1b8WfrqOOY7f3pulRSpNuU",
+            authDomain: "smartwm-e1984.firebaseapp.com",
+            databaseURL: "https://smartwm-e1984-default-rtdb.firebaseio.com", // ✅ Fixed URL
+            projectId: "smartwm-e1984",
+            storageBucket: "smartwm-e1984.appspot.com", // ✅ Fixed Storage Bucket
+            messagingSenderId: "339518167826",
+            appId: "1:339518167826:web:4fa186c8b60e798a7af1cb"
+        };
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig); pp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const form = document.getElementById('driver-details-form'); tails - form');
+        form.addEventListener('submit', async (e) => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitButton = document.getElementById('submit-button');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Submitting...';
+
+                const age = document.getElementById('age').value;
+                const driverName = document.getElementById('driver-name').value; const driverName = document.getElementById('driver-name').value;
+                const ward = document.getElementById('ward').value; t.getElementById('ward').value;
+                const phone = document.getElementById('phone').value; ne = document.getElementById('phone').value;
+                const chatId = document.getElementById('chat-id').value;= document.getElementById('driver-id').value;
+                const dateOfJoin = document.getElementById('date-of-join').value;= document.getElementById('chat-id').value;
+
+                const errorMessageDiv = document.getElementById("error-message"); erData = {
+                    const errorDetails = document.getElementById("error-details"); d,
+                    driverName,
+                    try {
+                        driverId,
+                        // Fetch existing drivers to determine the next driver ID
+                        const driversRef = ref(db, 'drivers');
+                        const snapshot = await get(driversRef); age
+
+                let nextDriverNumber = 1;
+                        if(snapshot.exists()) {
+                ");
+                const drivers = snapshot.val(); s = document.getElementById("error-details");
+                const driverNumbers = Object.keys(drivers).map(key => {
+                    const match = key.match(/klbd(\d+)/);
+                    return match ? parseInt(match[1], 10) : 0;riverData);
+            });lly submitted!");
+        nextDriverNumber = Math.max(...driverNumbers) + 1; set();
+                }
+        Firebase: ', error);
+        const driverId = `klbd${String(nextDriverNumber).padStart(3, '0')}`; errorMessageDiv.classList.remove("hidden");
+        errorDetails.textContent = error.message;
+        const driverData = {
+            finally {
+                ward, submitButton.disabled = false;
+                name: driverName, submitButton.textContent = 'Submit';
+                driver_id: driverId,
+            }
+                    chatId,
+            contact: phone,
+            age,
+            dateofjoin: dateOfJoin
+        };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html ></body >    </script> }); } submitButton.textContent = 'Submit'; submitButton.disabled = false; } finally {
+    errorDetails.textContent = error.message; errorMessageDiv.classList.remove("hidden"); console.error('Error saving
+    data to Firebase:', error); } catch (error) { form.reset(); alert("Driver details have been successfully
+    submitted!"); await set(ref(db, 'drivers/' + driverId), driverData);
+
+</html>
+</body>
+</script> }); });
+</script>
+</body>
+
+</html>

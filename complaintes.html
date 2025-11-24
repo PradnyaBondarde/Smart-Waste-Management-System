@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart City Waste Complaints</title>
+    <style>
+        :root {
+            --primary-color: #1a2a36;
+            --accent-color: #2c4356;
+            --light-accent: #e7eef3;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--primary-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-button {
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+            padding: 8px 15px;
+            border-radius: 5px;
+            background-color: var(--light-accent);
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #d0dde9;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .filter-section {
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #d0d7de;
+            background-color: white;
+            color: var(--primary-color);
+            font-size: 14px;
+            outline: none;
+            min-width: 150px;
+        }
+
+        select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(42, 67, 86, 0.2);
+        }
+
+        .complaints-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: 20px;
+        }
+
+        .complaint-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .complaint-header {
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .complaint-id {
+            font-weight: 500;
+        }
+
+        .complaint-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .status-pending {
+            background-color: var(--danger-color);
+        }
+
+        .status-inprogress {
+            background-color: var(--warning-color);
+        }
+
+        .status-resolved {
+            background-color: var(--success-color);
+        }
+
+        .complaint-body {
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+        }
+
+        /*
+        .complaint-photo {
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid var(--light-accent);
+        }
+        */
+
+        .complaint-details {
+            flex: 1;
+        }
+
+        .complaint-location,
+        .complaint-timestamp,
+        .complaint-contact,
+        .complaint-bin {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            min-width: 80px;
+            color: var(--primary-color);
+        }
+
+        .complaint-description {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--light-accent);
+            line-height: 1.5;
+        }
+
+        .complaint-footer {
+            padding: 10px 15px;
+            background-color: var(--light-accent);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .action-button {
+            padding: 6px 12px;
+            border-radius: 5px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-resolve {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-resolve:hover {
+            background-color: var(--accent-color);
+        }
+
+        @media (max-width: 768px) {
+            .complaints-list {
+                grid-template-columns: 1fr;
+            }
+
+            .complaint-body {
+                flex-direction: column;
+            }
+
+            /*
+            .complaint-photo {
+                width: 100%;
+                height: 200px;
+            }
+            */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <a href="dashboardmain.html" class="back-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
+                </svg>
+                Back to Main Dashboard
+            </a>
+            <h1>Smart City Waste Complaints</h1>
+            <div style="width: 120px;"></div> <!-- Spacer for balance -->
+        </header>
+
+        <div class="filter-section">
+            <span class="filter-label">Filter by ward:</span>
+            <select id="ward-selector" class="filter-select">
+                <option value="all">All Wards</option>
+                <option value="Ward A">Ward A</option>
+                <option value="Ward B">Ward B</option>
+                <option value="Ward C">Ward C</option>
+                <option value="Ward D">Ward D</option>
+            </select>
+
+            <span class="filter-label">Filter by status:</span>
+            <select id="status-selector" class="filter-select">
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="inprogress">In Progress</option>
+                <option value="resolved">Resolved</option>
+            </select>
+        </div>
+
+        <div class="complaints-list">
+            <!-- Complaint Card 1 -->
+            <div class="complaint-card" data-ward="Ward A" data-status="pending">
+                <div class="complaint-header">
+                    <span class="complaint-id">Complaint #C-2025-001</span>
+                    <span class="complaint-status status-pending">Pending</span>
+                </div>
+                <div class="complaint-body">
+                    <!-- Removed photo display
+                    <img src="/api/placeholder/180/180" alt="Complaint Photo" class="complaint-photo">
+                    -->
+                    <div class="complaint-details">
+                        <div class="complaint-location">
+                            <span class="detail-label">Location:</span>
+                            <span>Market Street, Ward A</span>
+                        </div>
+                        <div class="complaint-bin">
+                            <span class="detail-label">Bin ID:</span>
+                            <span>BIN-002</span>
+                        </div>
+                        <div class="complaint-timestamp">
+                            <span class="detail-label">Reported:</span>
+                            <span>March 22, 2025, 10:45 AM</span>
+                        </div>
+                        <div class="complaint-contact">
+                            <span class="detail-label">Contact:</span>
+                            <span>John Doe (9876543210)</span>
+                        </div>
+                        <div class="complaint-description">
+                            <p>The bin is completely full and overflowing. Waste is scattered all around the bin. No
+                                collection has happened for the past 3 days despite multiple complaints. This is causing
+                                a bad smell in the area and attracting stray animals.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="complaint-footer">
+                    <button class="action-button btn-resolve">Assign Cleanup</button>
+                </div>
+            </div>
+
+            <!-- Complaint Card 2 -->
+            <div class="complaint-card" data-ward="Ward B" data-status="pending">
+                <div class="complaint-header">
+                    <span class="complaint-id">Complaint #C-2025-002</span>
+                    <span class="complaint-status status-pending">Pending</span>
+                </div>
+                <div class="complaint-body">
+                    <!-- Removed photo display
+                    <img src="/api/placeholder/180/180" alt="Complaint Photo" class="complaint-photo">
+                    -->
+                    <div class="complaint-details">
+                        <div class="complaint-location">
+                            <span class="detail-label">Location:</span>
+                            <span>Hospital Road, Ward B</span>
+                        </div>
+                        <div class="complaint-bin">
+                            <span class="detail-label">Bin ID:</span>
+                            <span>BIN-003</span>
+                        </div>
+                        <div class="complaint-timestamp">
+                            <span class="detail-label">Reported:</span>
+                            <span>March 22, 2025, 09:15 AM</span>
+                        </div>
+                        <div class="complaint-contact">
+                            <span class="detail-label">Contact:</span>
+                            <span>Jane Smith (9876543211)</span>
+                        </div>
+                        <div class="complaint-description">
+                            <p>Bin is full since yesterday morning and needs immediate attention. This is outside a
+                                hospital and causing health concerns. Please send someone to clear this as soon as
+                                possible.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="complaint-footer">
+                    <button class="action-button btn-resolve">Assign Cleanup</button>
+                </div>
+            </div>
+
+            <!-- Complaint Card 3 -->
+            <div class="complaint-card" data-ward="Ward C" data-status="inprogress">
+                <div class="complaint-header">
+                    <span class="complaint-id">Complaint #C-2025-003</span>
+                    <span class="complaint-status status-inprogress">In Progress</span>
+                </div>
+                <div class="complaint-body">
+                    <!-- Removed photo display
+                    <img src="/api/placeholder/180/180" alt="Complaint Photo" class="complaint-photo">
+                    -->
+                    <div class="complaint-details">
+                        <div class="complaint-location">
+                            <span class="detail-label">Location:</span>
+                            <span>Shopping Mall, Ward C</span>
+                        </div>
+                        <div class="complaint-bin">
+                            <span class="detail-label">Bin ID:</span>
+                            <span>BIN-006</span>
+                        </div>
+                        <div class="complaint-timestamp">
+                            <span class="detail-label">Reported:</span>
+                            <span>March 21, 2025, 05:30 PM</span>
+                        </div>
+                        <div class="complaint-contact">
+                            <span class="detail-label">Contact:</span>
+                            <span>Robert Johnson (9876543212)</span>
+                        </div>
+                        <div class="complaint-description">
+                            <p>The bin has been full for two days. There's a lot of food waste which is attracting flies
+                                and birds. Several shoppers have complained about the smell. Cleanup has been scheduled
+                                but not yet completed.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="complaint-footer">
+                    <button class="action-button btn-resolve">Check Status</button>
+                </div>
+            </div>
+
+            <!-- Complaint Card 4 -->
+            <div class="complaint-card" data-ward="Ward D" data-status="pending">
+                <div class="complaint-header">
+                    <span class="complaint-id">Complaint #C-2025-004</span>
+                    <span class="complaint-status status-pending">Pending</span>
+                </div>
+                <div class="complaint-body">
+                    <!-- Removed photo display
+                    <img src="/api/placeholder/180/180" alt="Complaint Photo" class="complaint-photo">
+                    -->
+                    <div class="complaint-details">
+                        <div class="complaint-location">
+                            <span class="detail-label">Location:</span>
+                            <span>Park Junction, Ward D</span>
+                        </div>
+                        <div class="complaint-bin">
+                            <span class="detail-label">Bin ID:</span>
+                            <span>BIN-008</span>
+                        </div>
+                        <div class="complaint-timestamp">
+                            <span class="detail-label">Reported:</span>
+                            <span>March 23, 2025, 08:00 AM</span>
+                        </div>
+                        <div class="complaint-contact">
+                            <span class="detail-label">Contact:</span>
+                            <span>Sarah Williams (9876543213)</span>
+                        </div>
+                        <div class="complaint-description">
+                            <p>This bin has been full for several days now. It's located near a playground where
+                                children play and poses a health hazard. Please send someone to clean it as soon as
+                                possible.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="complaint-footer">
+                    <button class="action-button btn-resolve">Assign Cleanup</button>
+                </div>
+            </div>
+
+            <!-- Complaint Card 5 -->
+            <div class="complaint-card" data-ward="Ward A" data-status="resolved">
+                <div class="complaint-header">
+                    <span class="complaint-id">Complaint #C-2025-005</span>
+                    <span class="complaint-status status-resolved">Resolved</span>
+                </div>
+                <div class="complaint-body">
+                    <!-- Removed photo display
+                    <img src="/api/placeholder/180/180" alt="Complaint Photo" class="complaint-photo">
+                    -->
+                    <div class="complaint-details">
+                        <div class="complaint-location">
+                            <span class="detail-label">Location:</span>
+                            <span>Central Park, Ward A</span>
+                        </div>
+                        <div class="complaint-bin">
+                            <span class="detail-label">Bin ID:</span>
+                            <span>BIN-001</span>
+                        </div>
+                        <div class="complaint-timestamp">
+                            <span class="detail-label">Reported:</span>
+                            <span>March 20, 2025, 11:20 AM</span>
+                        </div>
+                        <div class="complaint-contact">
+                            <span class="detail-label">Contact:</span>
+                            <span>Michael Brown (9876543214)</span>
+                        </div>
+                        <div class="complaint-description">
+                            <p>Bin was overflowing and not collected for days. Issue has been resolved on March 21, 2025
+                                at 9:30 AM. Area has been cleaned and sanitized.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="complaint-footer">
+                    <button class="action-button btn-resolve">View Details</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBPWNvZyLG6V1b8WfrqOOY7f3pulRSpNuU",
+            authDomain: "smartwm-e1984.firebaseapp.com",
+            databaseURL: "https://smartwm-e1984-default-rtdb.firebaseio.com",
+            projectId: "smartwm-e1984",
+            storageBucket: "smartwm-e1984.firebasestorage.app",
+            messagingSenderId: "339518167826",
+            appId: "1:339518167826:web:4fa186c8b60e798a7af1cb"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Function to format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Function to create complaint card
+        function createComplaintCard(complaint, id) {
+            return `
+                <div class="complaint-card" data-ward="${complaint.ward}" data-status="${complaint.status}">
+                    <div class="complaint-header">
+                        <span class="complaint-id">Complaint #${complaint.complaintId}</span>
+                        <span class="complaint-status status-${complaint.status}">${complaint.status}</span>
+                    </div>
+                    <div class="complaint-body">
+                        <!-- Removed photo display
+                        <img src="${complaint.photoURL || '/api/placeholder/180/180'}" alt="Complaint Photo" class="complaint-photo">
+                        -->
+                        <div class="complaint-details">
+                            <div class="complaint-location">
+                                <span class="detail-label">Location:</span>
+                                <span>${complaint.streetAddress}</span>
+                            </div>
+                            <div class="complaint-bin">
+                                <span class="detail-label">Bin ID:</span>
+                                <span>${complaint.binId || 'N/A'}</span>
+                            </div>
+                            <div class="complaint-timestamp">
+                                <span class="detail-label">Reported:</span>
+                                <span>${formatDate(complaint.timestamp)}</span>
+                            </div>
+                            <div class="complaint-contact">
+                                <span class="detail-label">Contact:</span>
+                                <span>${complaint.name} (${complaint.phone})</span>
+                            </div>
+                            <div class="complaint-description">
+                                <p>${complaint.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="complaint-footer">
+                        <button class="action-button btn-resolve" data-complaint-id="${complaint.complaintId}">
+                            ${complaint.status === 'resolved' ? 'View Details' : 'Update Status'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Function to fetch and display complaints
+        function fetchComplaints() {
+            const complaintsRef = ref(db, 'complaints');
+            const complaintsList = document.querySelector('.complaints-list');
+
+            onValue(complaintsRef, (snapshot) => {
+                complaintsList.innerHTML = ''; // Clear existing complaints
+
+                if (!snapshot.exists()) {
+                    complaintsList.innerHTML = '<p>No complaints found.</p>';
+                    return;
+                }
+
+                snapshot.forEach((childSnapshot) => {
+                    const complaint = childSnapshot.val();
+                    complaintsList.innerHTML += createComplaintCard(complaint, childSnapshot.key);
+                });
+
+                // Add event listeners to new buttons
+                addButtonListeners();
+                // Initial filter
+                filterComplaints();
+            }, (error) => {
+                console.error('Error fetching complaints:', error);
+                complaintsList.innerHTML = '<p>Error loading complaints. Please try again later.</p>';
+            });
+        }
+
+        // Filter complaints based on ward and status
+        function filterComplaints() {
+            const selectedWard = document.getElementById('ward-selector').value;
+            const selectedStatus = document.getElementById('status-selector').value;
+            const complaints = document.querySelectorAll('.complaint-card');
+
+            complaints.forEach(complaint => {
+                const wardMatch = selectedWard === 'all' || complaint.dataset.ward === selectedWard;
+                const statusMatch = selectedStatus === 'all' || complaint.dataset.status === selectedStatus;
+
+                complaint.style.display = (wardMatch && statusMatch) ? '' : 'none';
+            });
+        }
+
+        // Add event listeners to action buttons
+        function addButtonListeners() {
+            const actionButtons = document.querySelectorAll('.action-button');
+            actionButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const complaintId = this.dataset.complaintId;
+                    // Handle status update or view details
+                    console.log('Action triggered for complaint:', complaintId);
+                });
+            });
+        }
+
+        // Add event listeners to filters
+        document.getElementById('ward-selector').addEventListener('change', filterComplaints);
+        document.getElementById('status-selector').addEventListener('change', filterComplaints);
+
+        // Fetch complaints on page load
+        fetchComplaints();
+    </script>
+</body>
+
+</html>

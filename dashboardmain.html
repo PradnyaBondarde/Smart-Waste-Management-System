@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Waste Management Dashboard</title>
+    <link rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <style>
+        /* Import fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        /* Base Styles & Variables */
+        :root {
+            /* Color palette */
+            --color-white: #F8F9FA;
+            --color-gray-100: #E9ECEF;
+            --color-gray-200: #DEE2E6;
+            --color-gray-300: #CED4DA;
+            --color-gray-400: #ADB5BD;
+            --color-gray-500: #6C757D;
+            --color-gray-600: #495057;
+            --color-gray-700: #343A40;
+            --color-gray-800: #212529;
+
+            /* Semantic colors */
+            --color-primary: #228be6;
+            --color-primary-light: #74c0fc;
+            --color-primary-dark: #1971c2;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-danger: #ef4444;
+            --color-info: #0ea5e9;
+
+            /* UI Spacing */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-xxl: 3rem;
+
+            /* Font sizes */
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.875rem;
+            --font-size-md: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.25rem;
+            --font-size-xxl: 1.5rem;
+            --font-size-display: 2rem;
+
+            /* Border radius */
+            --border-radius-sm: 0.25rem;
+            --border-radius-md: 0.5rem;
+            --border-radius-lg: 0.75rem;
+            --border-radius-pill: 9999px;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+            /* Transitions */
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+            --transition-slow: 350ms ease;
+
+            /* Layout */
+            --sidebar-width: 280px;
+            --sidebar-collapsed-width: 80px;
+            --header-height: 64px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-size: var(--font-size-md);
+            line-height: 1.5;
+            color: var(--color-gray-800);
+            background-color: var(--color-gray-100);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Typography */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        h1 {
+            font-size: var(--font-size-display);
+        }
+
+        h2 {
+            font-size: var(--font-size-xxl);
+        }
+
+        h3 {
+            font-size: var(--font-size-xl);
+        }
+
+        a {
+            color: var(--color-primary);
+            text-decoration: none;
+            transition: color var(--transition-fast);
+        }
+
+        a:hover {
+            color: var(--color-primary-dark);
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--color-white);
+            border-right: 1px solid var(--color-gray-200);
+            display: flex;
+            flex-direction: column;
+            transition: width var(--transition-normal);
+            box-shadow: var(--shadow-md);
+            z-index: 10;
+        }
+
+        .sidebar-collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        .sidebar-header {
+            height: var(--header-height);
+            padding: 0 var(--spacing-md);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .logo i {
+            font-size: var(--font-size-xl);
+            color: var(--color-primary);
+        }
+
+        .logo h2 {
+            margin-bottom: 0;
+            color: var(--color-gray-700);
+            font-size: var(--font-size-xl);
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--color-gray-500);
+            font-size: var(--font-size-lg);
+            transition: color var(--transition-fast);
+        }
+
+        .sidebar-toggle:hover {
+            color: var(--color-gray-700);
+        }
+
+        .sidebar-user {
+            padding: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: var(--color-gray-200);
+            border: 2px solid var(--color-gray-300);
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-info h3 {
+            margin-bottom: 0;
+            font-size: var(--font-size-md);
+        }
+
+        .user-info p {
+            color: var (--color-gray-500);
+            font-size: var(--font-size-sm);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: var(--spacing-md) 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            color: var(--color-gray-600);
+            transition: all var(--transition-fast);
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-nav a i {
+            min-width: 24px;
+            text-align: center;
+            font-size: var(--font-size-lg);
+        }
+
+        .sidebar-nav a:hover {
+            background-color: var(--color-gray-100);
+            color: var(--color-gray-800);
+        }
+
+        .sidebar-nav li.active a {
+            background-color: var(--color-gray-100);
+            color: var(--color-primary);
+            border-left-color: var(--color-primary);
+            font-weight: 500;
+        }
+
+        .sidebar-footer {
+            padding: var(--spacing-md);
+            border-top: 1px solid var(--color-gray-200);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .sidebar-footer a {
+            color: var(--color-gray-500);
+            font-size: var(--font-size-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .sidebar-footer a:hover {
+            color: var(--color-gray-700);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Navbar */
+        .top-navbar {
+            height: var(--header-height);
+            background-color: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--spacing-xl);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            background-color: var(--color-gray-100);
+            border-radius: var(--border-radius-pill);
+            padding: var(--spacing-sm) var(--spacing-md);
+            width: 360px;
+        }
+
+        .search-bar i {
+            color: var(--color-gray-500);
+        }
+
+        .search-bar input {
+            background: none;
+            border: none;
+            outline: none;
+            width: 100%;
+            color: var(--color-gray-700);
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+        }
+
+        .date-time {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-600);
+        }
+
+        .notifications {
+            position: relative;
+            color: var(--color-gray-600);
+            cursor: pointer;
+            transition: color var(--transition-fast);
+        }
+
+        .notifications:hover {
+            color: var(--color-gray-800);
+            transform: scale(1.1);
+            transition: transform 0.2s ease;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--color-danger);
+            color: white;
+            font-size: var(--font-size-xs);
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle {
+            color: var(--color-gray-600);
+            cursor: pointer;
+            transition: color var(--transition-fast);
+        }
+
+        .theme-toggle:hover {
+            color: var(--color-gray-800);
+        }
+
+        /* Dashboard Container */
+        .dashboard-container {
+            flex: 1;
+            padding: var(--spacing-xl);
+            overflow-y: auto;
+        }
+
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .view-options {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .date-range {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-sm);
+        }
+
+        /* Stat Cards */
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .stat-card {
+            background-color: var(--color-white);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            box-shadow: var(--shadow-sm);
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--border-radius-md);
+            background-color: var(--color-primary-light);
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-xl);
+        }
+
+        .stat-icon.warning {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--color-warning);
+        }
+
+        .stat-icon.success {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--color-success);
+        }
+
+        .stat-icon.info {
+            background-color: rgba(14, 165, 233, 0.2);
+            color: var(--color-info);
+        }
+
+        .stat-info h3 {
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            margin-bottom: var(--spacing-xs);
+            color: var(--color-gray-600);
+        }
+
+        .stat-info p {
+            font-size: var(--font-size-xxl);
+            font-weight: 600;
+            color: var(--color-gray-800);
+            line-height: 1;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-auto-rows: minmax(300px, auto);
+            gap: var(--spacing-xl);
+        }
+
+        /* Widgets */
+        .widget {
+            background-color: var(--color-white);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: box-shadow var(--transition-fast);
+        }
+
+        .widget:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .bin-fill-visual {
+            grid-column: span 1;
+            grid-row: span 2;
+        }
+
+        .fill-history {
+            grid-column: span 1;
+            grid-row: span 1;
+        }
+
+        .bins-map {
+            grid-column: span 2;
+            grid-row: span 1;
+        }
+
+        .collection-schedule {
+            grid-column: span 1;
+            grid-row: span 1;
+        }
+
+        .critical-bins {
+            grid-column: span 1;
+            grid-row: span 1;
+            width: 200%;
+            /* Makes it full-width */
+
+        }
+
+        .widget-header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .widget-header h2 {
+            font-size: var(--font-size-lg);
+            margin-bottom: 0;
+        }
+
+        .widget-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .widget-content {
+            padding: var(--spacing-lg);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            border-radius: var(--border-radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: var(--font-size-md);
+            line-height: 1.5;
+            border: 1px solid transparent;
+            gap: var (--spacing-sm);
+        }
+
+        .btn-sm {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: var (--font-size-sm);
+            border-radius: var(--border-radius-sm);
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--color-primary-dark);
+            border-color: var(--color-primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--color-white);
+            color: var(--color-gray-600);
+            border-color: var(--color-gray-300);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--color-gray-100);
+            color: var (--color-gray-800);
+        }
+
+        .refresh-btn {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .refresh-btn i {
+            margin-right: var(--spacing-sm);
+        }
+
+        /* Tank visualization */
+        .bin-fill-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: #f4f4f4;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: auto;
+        }
+
+        /* Tank Section */
+        .tank-container {
+            width: 40%;
+            text-align: center;
+        }
+
+        .tank {
+            width: 80px;
+            height: 150px;
+            background: #ddd;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #bbb;
+        }
+
+        /* Water Fill Effect */
+        .tank-level {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 0%;
+            background: #4caf50;
+            transition: height 0.8s ease-in-out, background 0.5s ease-in-out;
+            animation: water-animation 2s infinite alternate;
+        }
+
+        @keyframes water-animation {
+            0% {
+                transform: translateY(0px);
+            }
+
+            100% {
+                transform: translateY(-3px);
+            }
+        }
+
+
+
+        .sensor-data {
+            flex: 1;
+            background-color: var(--color-gray-100);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-lg);
+        }
+
+        .sensor-readings {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+            margin: var(--spacing-md) 0;
+        }
+
+        .sensor-reading {
+            display: flex;
+            flex-direction: column;
+            gap: var (--spacing-xs);
+            padding: var(--spacing-md);
+            background-color: var(--color-white);
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sensor-reading i {
+            color: var(--color-primary);
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .sensor-reading span:nth-child(2) {
+            font-size: var(--font-size-sm);
+            color: var (--color-gray-500);
+        }
+
+        .sensor-reading span:nth-child(3) {
+            font-weight: 600;
+            color: var(--color-gray-800);
+        }
+
+        .sensor-status {
+            display: flex;
+            justify-content: space-between;
+            margin-top: var(--spacing-lg);
+            font-size: var(--font-size-sm);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius-pill);
+            font-weight: 500;
+        }
+
+        .status-badge.online {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--color-success);
+        }
+
+        .status-badge.offline {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--color-danger);
+        }
+
+        .status-badge i {
+            font-size: var(--font-size-xs);
+        }
+
+        .bin-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: var(--spacing-lg);
+        }
+
+        /* Data Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            text-align: left;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .data-table th {
+            font-weight: 600;
+            color: var(--color-gray-600);
+            background-color: var(--color-gray-100);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover td {
+            background-color: var(--color-gray-100);
+        }
+
+        /* Status badges for tables */
+        .status-badge.completed {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--color-success);
+        }
+
+        .status-badge.in-progress {
+            background-color: rgba(14, 165, 233, 0.1);
+            color: var(--color-info);
+        }
+
+        .status-badge.scheduled {
+            background-color: rgba(107, 114, 128, 0.1);
+            color: var(--color-gray-500);
+        }
+
+        /* Priority badges */
+        .priority-badge {
+            display: inline-block;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius-pill);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+
+        .priority-badge.high {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--color-danger);
+        }
+
+        .priority-badge.medium {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--color-warning);
+        }
+
+        .priority-badge.low {
+            background-color: rgba(107, 114, 128, 0.1);
+            color: var(--color-gray-500);
+        }
+
+        /* Progress bars */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: var(--color-gray-200);
+            border-radius: var(--border-radius-pill);
+            position: relative;
+        }
+
+        .progress {
+            height: 100%;
+            border-radius: var(--border-radius-pill);
+            background: var(--color-danger);
+        }
+
+        .progress-bar span {
+            position: absolute;
+            right: 0;
+            top: -18px;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+
+        /* Map container */
+        #map-container {
+            height: 400px;
+            background-color: var(--color-gray-100);
+            border-radius: var(--border-radius-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 1;
+        }
+
+        .map-legend {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-md);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        /* Forms */
+        select,
+        input {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--border-radius-md);
+            background-color: var(--color-white);
+            color: var(--color-gray-700);
+            font-size: var(--font-size-sm);
+            transition: border-color var(--transition-fast);
+        }
+
+        select:focus,
+        input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .bin-selector {
+            margin-bottom: var(--spacing-md);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .stat-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .bins-map {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --sidebar-width: 240px;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-md);
+            }
+
+            .view-options {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .bin-fill-container {
+                flex-direction: column;
+            }
+
+            .search-bar {
+                width: 100%;
+                max-width: 240px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            :root {
+                --sidebar-width: 100%;
+            }
+
+            .app-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                position: absolute;
+                z-index: 100;
+                transform: translateY(-100%);
+                transition: transform var(--transition-normal);
+            }
+
+            .sidebar.show {
+                transform: translateY(0);
+            }
+
+            .stat-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .tank-stats {
+                flex-direction: column;
+                gap: var(--spacing-md);
+            }
+        }
+
+        #map-container {
+            width: 100%;
+            height: 500px;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .map-legend {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .legend-color {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            border-radius: 50%;
+        }
+    </style>
+
+
+</head>
+
+<body>
+    <script>
+        // Get email from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const userEmail = decodeURIComponent(urlParams.get('email'));
+
+        // You can now use userEmail to display or use the email
+        window.onload = function () {
+            if (userEmail) {
+                // Update the user info in sidebar
+                document.querySelector('.user-info h3').textContent = userEmail;
+            }
+        }
+    </script>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-recycle"></i>
+                    <h2>WasteSmart</h2>
+                </div>
+                <button id="sidebar-toggle" class="sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <div class="sidebar-user">
+                <div class="avatar">
+                    <img src="https://source.unsplash.com/random/100x100/?avatar" alt="User Avatar">
+                </div>
+                <div class="user-info">
+                    <h3>John Doe</h3>
+                    <p>Municipal Admin</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="#"><i class="fas fa-chart-line"></i> Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="bin.html"><i class="fas fa-trash"></i> Bin Management</a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fas fa-route"></i>Track Complaints</a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fas fa-truck"></i> Fleet Management</a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fas fa-chart-pie"></i> Analytics</a>
+                    </li>
+                    <li>
+                        <a href="complaintes.html"><i class="fas fa-bell"></i> Track Comlaints</a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fas fa-users"></i> Driver Management</a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="#"><i class="fas fa-question-circle"></i> Help</a>
+                <a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-navbar">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search for bins, locations, issues...">
+                </div>
+
+                <div class="navbar-actions">
+                    <div class="date-time">
+                        <span id="current-date"></span>
+                        <span id="current-time"></span>
+                    </div>
+                    <div class="notifications" onclick="window.location.href='notification.html'"
+                        style="cursor: pointer;">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge"></span>
+                    </div>
+                    <div class="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-container">
+                <div class="dashboard-header">
+                    <h1>Smart Waste Management Dashboard</h1>
+                    <div class="view-options">
+                        <select id="area-filter">
+                            <option value="all">All Areas</option>
+                            <option value="ward_A">kalburgi District ward_A</option>
+                            <option value="ward_B">kalburgi District ward_B</option>
+                            <option value="ward_C">kalburgi District ward_C</option>
+                            <option value="ward_D">kalburgi District ward_D</option>
+
+                        </select>
+                        <div class="date-display">
+                            <p id="current-date"></p>
+                        </div>
+                        <button class="btn btn-primary refresh-btn" onclick="location.reload();">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+
+                    </div>
+                </div>
+
+                <div class="stat-cards">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-trash-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Bins</h3>
+                            <p id="total-bins">Loading...</p> <!-- Changed from static '250' to 'Loading...' -->
+                        </div>
+
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-info" id="critical-fill-box">
+                            <h3>Critical Fill Levels</h3>
+                            <p id="critical-bins">Loading...</p> <!-- Updated to display loading text -->
+                        </div>
+
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon success">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Collections Today</h3>
+                            <p id="collections-today">18</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon info">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Avg. Fill Rate</h3>
+                            <p id="avg-fill-rate">Loading...</p> <!-- Updated to display loading text -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Bin Fill Level Tank Visualization Section -->
+                    <section class="widget bin-fill-visual">
+                        <div class="widget-header">
+                            <h2>Real-Time Bin Fill Levels</h2>
+                            <div class="widget-actions">
+                                <button class="btn btn-sm"><i class="fas fa-expand"></i></button>
+                                <button class="btn btn-sm"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </div>
+                        <div class="widget-content">
+
+                            <div class="bin-selector">
+                                <label for="bin-selector">Select Bin ID:</label>
+                                <select id="bin-selector">
+                                    <option value="">Select a Bin</option>
+                                    <option value="bin_1">Bin 1 - Super Market</option>
+                                    <option value="bin_2">Bin 2 - Shahabad Road, Near CBS</option>
+                                    <option value="bin_3">Bin 3 - Ram Nagar Colony</option>
+                                    <option value="bin_4">Bin 4 - Shetty Institute</option>
+                                </select>
+                            </div>
+
+                            <div class="bin-fill-container">
+                                <div class="tank-container">
+                                    <div class="tank-label">
+                                        <h3 id="bin-location">Select a Bin</h3>
+                                        <p id="bin-last-updated">Last updated: Just now</p>
+                                    </div>
+                                    <div class="tank">
+                                        <div class="tank-level" id="tank-level"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Bin Stats Section (Right) -->
+                                <div class="tank-stats">
+                                    <div class="tank-percentage">
+                                        <h3 id="fill-percentage">78%</h3>
+                                        <p>Fill Level</p>
+                                    </div>
+                                    <div class="tank-amount">
+                                        <h3 id="fill-amount">54.6</h3>
+                                        <p>Liters</p>
+                                    </div>
+                                    <div class="tank-capacity">
+                                        <h3 id="bin-capacity">70</h3>
+                                        <p>Liter Capacity</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- <div class="sensor-data">
+                                    <h3>Sensor Data</h3>
+                                    <div class="sensor-readings">
+                                        <div class="sensor-reading">
+                                            <i class="fas fa-thermometer-half"></i>
+                                            <span>Temperature</span>
+                                            <span id="temperature">24°C</span>
+                                        </div>
+                                        <div class="sensor-reading">
+                                            <i class="fas fa-weight"></i>
+                                            <span>Weight</span>
+                                            <span id="weight">42 kg</span>
+                                        </div>
+                                        <div class="sensor-reading">
+                                            <i class="fas fa-battery-three-quarters"></i>
+                                            <span>Battery</span>
+                                            <span id="battery">86%</span>
+                                        </div>
+                                        <div class="sensor-reading">
+                                            <i class="fas fa-signal"></i>
+                                            <span>Signal Strength</span>
+                                            <span id="signal">Good</span>
+                                        </div>
+                                    </div>
+                                    <div class="sensor-status" id="sensor-status">
+                                        <span class="status-badge online"><i class="fas fa-circle"></i> Online</span>
+                                        <span>ID: WSN-2345-A1</span>
+                                    </div>
+                                </div> -->
+
+
+                            <div class="bin-actions">
+                                <button class="btn btn-primary"><i class="fas fa-route"></i> Optimize Route</button>
+                                <button class="btn btn-secondary"><i class="fas fa-history"></i> View History</button>
+                                <button class="btn btn-secondary"><i class="fas fa-bell"></i> Set Alert</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Fill History Chart -->
+                    <section class="widget fill-history">
+                        <div class="widget-header">
+                            <h2>Fill Level History</h2>
+                            <div class="widget-actions">
+                                <select id="timeframe-selector">
+                                    <option value="day">24 Hours</option>
+                                    <option value="week" selected>7 Days</option>
+                                    <option value="month">30 Days</option>
+                                </select>
+                                <button class="btn btn-sm"><i class="fas fa-expand"></i></button>
+                                <button class="btn btn-sm"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </div>
+                        <div class="widget-content">
+                            <canvas id="fill-history-chart"></canvas>
+                        </div>
+                    </section>
+
+                    <!-- Bins Map
+                    <section class="widget bins-map">
+                        <div class="widget-header">
+                            <h2>Bins Map View</h2>
+                            <div class="widget-actions">
+                                <button class="btn btn-sm"><i class="fas fa-layer-group"></i></button>
+                                <button class="btn btn-sm"><i class="fas fa-expand"></i></button>
+                                <button class="btn btn-sm"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </div>
+                        <div class="widget-content">
+                            <div id="map-container">
+                                <!-- Map will be rendered here by JavaScript 
+                                <div class="map-overlay">
+                                    <h3>Loading map...</h3>
+                                </div>
+                            </div>
+                            <div class="map-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #10b981;"></span>
+                                    <span>Low (0-50%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #f59e0b;"></span>
+                                    <span>Medium (51-75%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #ef4444;"></span>
+                                    <span>High (76-100%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #6b7280;"></span>
+                                    <span>Offline</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section> -->
+                    <!-- Bins Map -->
+                    <section class="widget bins-map">
+                        <div class="widget-header">
+                            <h2>Bins Map View</h2>
+                            <div class="widget-actions">
+                                <button class="btn btn-sm"><i class="fas fa-layer-group"></i></button>
+                                <button class="btn btn-sm"><i class="fas fa-expand"></i></button>
+                                <button class="btn btn-sm"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </div>
+                        <div class="widget-content">
+                            <div id="map-container">
+                                <div id="map"></div>
+                            </div>
+                            <div class="map-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #10b981;"></span>
+                                    <span>Low (0-50%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #f59e0b;"></span>
+                                    <span>Medium (51-75%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #ef4444;"></span>
+                                    <span>High (76-100%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #6b7280;"></span>
+                                    <span>Offline</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Collection Schedule
+                    <section class="widget collection-schedule">
+                        <div class="widget-header">
+                            <h2>Collection Schedule</h2>
+                            <div class="widget-actions">
+                                <button class="btn btn-sm"><i class="fas fa-expand"></i></button>
+                                <button class="btn btn-sm"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </div>
+                        <div class="widget-content">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Route</th>
+                                        <th>Driver</th>
+                                        <th>Bins</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="schedule-body">
+                                    <tr>
+                                        <td>08:00 AM</td>
+                                        <td>North Route 3</td>
+                                        <td>Michael Brown</td>
+                                        <td>12</td>
+                                        <td><span class="status-badge completed">Completed</span></td>
+                                        <td><button class="btn btn-sm btn-secondary">Details</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>10:30 AM</td>
+                                        <td>East Route 2</td>
+                                        <td>Sarah Johnson</td>
+                                        <td>15</td>
+                                        <td><span class="status-badge in-progress">In Progress</span></td>
+                                        <td><button class="btn btn-sm btn-secondary">Details</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>01:00 PM</td>
+                                        <td>Central Route 1</td>
+                                        <td>David Wilson</td>
+                                        <td>18</td>
+                                        <td><span class="status-badge scheduled">Scheduled</span></td>
+                                        <td><button class="btn btn-sm btn-secondary">Details</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>03:30 PM</td>
+                                        <td>West Route 4</td>
+                                        <td>Jennifer Lee</td>
+                                        <td>14</td>
+                                        <td><span class="status-badge scheduled">Scheduled</span></td>
+                                        <td><button class="btn btn-sm btn-secondary">Details</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>06:00 PM</td>
+                                        <td>South Route 2</td>
+                                        <td>Robert Garcia</td>
+                                        <td>10</td>
+                                        <td><span class="status-badge scheduled">Scheduled</span></td>
+                                        <td><button class="btn btn-sm btn-secondary">Details</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section> -->
+
+                    <!-- Critical Bins -->
+                    <section class="widget critical-bins" id="criticalBins">
+                        <div class="widget-header">
+                            <h2>Critical Fill Levels</h2>
+                            <div class="widget-actions">
+                                <button class="btn btn-sm"><i class="fas fa-expand"></i></button>
+                                <button class="btn btn-sm"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </div>
+                        <div class="widget-content">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Bin ID</th>
+                                        <th>Location</th>
+                                        <th>Fill Level</th>
+                                        <th>Last Collection</th>
+                                        <th>Priority</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="critical-bins-body">
+                                    <!-- Dynamic Data from Firebase will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app.min.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-database.min.js"></script> -->
+    n
+    <!-- Firebase v8 Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <!-- Google Maps API -->
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD--unDZzPUSle6kGRfSZ8iXN819JoQKGc&callback=initMap"></script>
+
+    <script>
+        // ✅ Correct Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBPWNvZyLG6V1b8WfrqOOY7f3pulRSpNuU",
+            authDomain: "smartwm-e1984.firebaseapp.com",
+            databaseURL: "https://smartwm-e1984-default-rtdb.firebaseio.com",
+            projectId: "smartwm-e1984",
+            storageBucket: "smartwm-e1984.appspot.com", // ✅ Corrected
+            messagingSenderId: "339518167826",
+            appId: "1:339518167826:web:4fa186c8b60e798a7af1cb"
+        };
+
+        // ✅ Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // ✅ Function to Fetch Total Bins
+        function updateTotalBins() {
+            console.log("Fetching bins...");
+
+            database.ref('bins').once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    console.log("Data received:", snapshot.val());
+
+                    const bins = snapshot.val();
+                    const totalBins = Object.keys(bins).length;
+                    document.getElementById('total-bins').innerText = totalBins; // ✅ Update UI
+                } else {
+                    document.getElementById('total-bins').innerText = "0"; // No bins found
+                }
+            }).catch((error) => {
+                console.error("Error fetching data:", error);
+                document.getElementById('total-bins').innerText = "Error"; // Show error if Firebase fails
+            });
+        }
+
+        // ✅ Call function when page loads
+        updateTotalBins();
+        document.querySelector(".refresh-btn").addEventListener("click", function () {
+            location.reload();
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            let today = new Date().toLocaleDateString(); // Format: MM/DD/YYYY (Default)
+            document.getElementById("current-date").innerText = "Today's Date: " + today;
+        });
+
+        function countCriticalBins() {
+            console.log("Fetching bin data...");
+
+            database.ref('bins').once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const bins = snapshot.val();
+                    let criticalCount = 0;
+
+                    // ✅ Check each bin's status (fill level)
+                    Object.values(bins).forEach(bin => {
+                        if (bin.status && bin.status > 80) {
+                            criticalCount++;
+                        }
+                    });
+
+                    // ✅ Update UI with count of critical bins
+                    document.getElementById('critical-bins').innerText = criticalCount;
+                    console.log("Critical bins count:", criticalCount);
+                } else {
+                    document.getElementById('critical-bins').innerText = "0"; // No bins found
+                }
+            }).catch((error) => {
+                console.error("Error fetching data:", error);
+                document.getElementById('critical-bins').innerText = "Error"; // Show error if Firebase fails
+            });
+        }
+
+        // ✅ Call function when page loads
+        countCriticalBins();
+        function calculateAverageFillRate() {
+            console.log("Fetching bin data...");
+
+            database.ref('bins').once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const bins = snapshot.val();
+                    let totalFill = 0;
+                    let binCount = 0;
+
+                    // ✅ Sum all bin fill levels and count bins
+                    Object.values(bins).forEach(bin => {
+                        if (bin.status !== "" && !isNaN(bin.status)) { // Ensure status is valid
+                            totalFill += parseFloat(bin.status);
+                            binCount++;
+                        }
+                    });
+
+                    // ✅ Calculate Average Fill Rate
+                    let avgFillRate = binCount > 0 ? (totalFill / binCount).toFixed(2) + "%" : "0%";
+
+                    // ✅ Update UI with calculated average fill rate
+                    document.getElementById('avg-fill-rate').innerText = avgFillRate;
+                    console.log("Average Fill Rate:", avgFillRate);
+                } else {
+                    document.getElementById('avg-fill-rate').innerText = "0%"; // No bins found
+                }
+            }).catch((error) => {
+                console.error("Error fetching data:", error);
+                document.getElementById('avg-fill-rate').innerText = "Error"; // Show error if Firebase fails
+            });
+        }
+
+        // ✅ Call function when page loads
+        calculateAverageFillRate();
+        document.getElementById('bin-selector').addEventListener('change', function () {
+            let selectedBin = this.value; // Get selected bin ID
+
+            if (selectedBin) {
+                // Reference to Firebase bin data
+                let binRef = database.ref('bins/' + selectedBin + '/status');
+
+                binRef.once('value').then((snapshot) => {
+                    let fillLevel = snapshot.val(); // Get fill level from Firebase
+
+                    if (fillLevel !== null && fillLevel !== "") {
+                        updateTankUI(fillLevel, selectedBin);
+                    } else {
+                        alert("No fill level data available for this bin.");
+                    }
+                }).catch(error => {
+                    console.error("Error fetching data:", error);
+                });
+            }
+        });
+
+        // Function to update UI
+        function updateTankUI(fillLevel, binId) {
+            let tank = document.getElementById('tank-level');
+            let binLocation = document.getElementById('bin-location');
+            let fillPercentage = document.getElementById('fill-percentage');
+
+            // Update UI elements
+            binLocation.innerText = "Bin " + binId;
+            fillPercentage.innerText = fillLevel + "%";
+            tank.style.height = fillLevel + "%";
+
+            // Change Water Color Based on Fill Level
+            if (fillLevel <= 40) {
+                tank.style.background = "#4caf50"; // Green
+            } else if (fillLevel <= 75) {
+                tank.style.background = "#ffeb3b"; // Yellow
+            } else if (fillLevel <= 90) {
+                tank.style.background = "#ff9800"; // Orange
+            } else {
+                tank.style.background = "#f44336"; // Red
+            }
+        }
+        document.getElementById("critical-fill-box").addEventListener("click", function () {
+            // Scroll smoothly to the Critical Bins section
+            document.getElementById("critical-bins-section").scrollIntoView({ behavior: "smooth" });
+        });
+
+        console.log("🔥 Initializing Firebase...");
+
+
+
+        const app = firebase.initializeApp(firebaseConfig);
+        //const database = firebase.database();
+
+        console.log("✅ Firebase Initialized Successfully!");
+
+        function initMap() {
+            console.log("🌍 Initializing Google Map...");
+
+            const map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 17.3297, lng: 76.8343 },
+                zoom: 14
+            });
+
+            console.log("📡 Fetching bin locations from Firebase...");
+
+            database.ref("bins").once("value")
+                .then((snapshot) => {
+                    if (!snapshot.exists()) {
+                        console.warn("⚠️ No bins found in database.");
+                        return;
+                    }
+
+                    snapshot.forEach((childSnapshot) => {
+                        let bin = childSnapshot.val();
+                        console.log("📍 Bin Data:", bin);
+
+                        if (!bin.latitude || !bin.longitude) {
+                            console.error(`❌ Invalid coordinates for ${bin.location}`);
+                            return;
+                        }
+
+                        let position = { lat: bin.latitude, lng: bin.longitude };
+                        let status = bin.status ? parseInt(bin.status) : 0;
+                        let markerIcon = getMarkerColor(status);
+
+                        console.log(`📌 ${bin.location} - Status: ${status}, Icon: ${markerIcon}`);
+
+                        new google.maps.Marker({
+                            position: position,
+                            map: map,
+                            title: `${bin.location} - Fill Level: ${status}%`,
+                            icon: {
+                                url: markerIcon,
+                                scaledSize: new google.maps.Size(40, 40)
+                            }
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error("🔥 Error fetching bins from Firebase:", error);
+                });
+        }
+
+        function getMarkerColor(status) {
+            if (status >= 80) {
+                return "icons/red.png";
+            } else if (status >= 50) {
+                return "icons/yellow.png";
+            } else {
+                return "icons/green.png";
+            }
+        }
+
+        // Add this code after your existing Firebase initialization
+        // Function to update notification badge with complaint count
+        function updateComplaintNotifications() {
+            const notificationBadge = document.querySelector('.notification-badge');
+
+            // Reference to complaints in Firebase
+            database.ref('complaints').once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const complaintsCount = Object.keys(snapshot.val()).length;
+                        notificationBadge.textContent = complaintsCount;
+                        console.log(`Found ${complaintsCount} complaints`);
+                    } else {
+                        notificationBadge.textContent = '0';
+                        console.log('No complaints found');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error fetching complaints:', error);
+                    notificationBadge.textContent = '!';
+                });
+        }
+
+        // Add real-time listener for complaints
+        database.ref('complaints').on('value', (snapshot) => {
+            updateComplaintNotifications();
+        });
+
+        // Initial call to update notifications
+        updateComplaintNotifications();
+    
+
+// Function to display critical bins
+// Function to format timestamp
+function formatTimestamp(timestamp) {
+    if (!timestamp) return "N/A";
+    const date = new Date(timestamp);
+    return date.toLocaleString();
+}
+
+// Function to display critical bins
+function displayCriticalBins() {
+    const db = firebase.database().ref("bins");
+    const tableBody = document.getElementById("critical-bins-body");
+
+    db.on("value", (snapshot) => {
+        tableBody.innerHTML = ""; // Clear previous data
+        let hasCriticalBins = false;
+        const binsData = snapshot.val();
+
+        console.log("Bins Data from Firebase:", binsData); // ✅ Debugging Log
+
+        if (binsData) {
+            Object.values(binsData).forEach(bin => {
+                console.log("Checking bin:", bin); // ✅ Debugging Log
+
+                if (bin.status && bin.status > 80) {
+                    hasCriticalBins = true;
+                    let priorityClass = bin.status >= 90 ? "high" : "medium";
+                    let priorityLabel = bin.status >= 90 ? "High" : "Medium";
+
+                    const formattedTime = formatTimestamp(bin.collected_at);
+
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${bin.bin_id}</td>
+                        <td>${bin.location}</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: ${bin.status}%;"></div>
+                                <span>${bin.status}%</span>
+                            </div>
+                        </td>
+                        <td>${formattedTime}</td>
+                        <td><span class="priority-badge ${priorityClass}">${priorityLabel}</span></td>
+                    `;
+                    tableBody.appendChild(row);
+                }
+            });
+        }
+
+        // If no critical bins found, show a message
+        if (!hasCriticalBins) {
+            console.log("No bins in critical state."); // ✅ Debugging Log
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center">No bins in critical state</td>
+                </tr>
+            `;
+        }
+    });
+}
+
+// Call function on page load
+window.onload = displayCriticalBins;
+
+</script>
+</body>
+
+</html>

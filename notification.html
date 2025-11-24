@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications</title>
+   
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBPWNvZyLG6V1b8WfrqOOY7f3pulRSpNuU",
+            authDomain: "smartwm-e1984.firebaseapp.com",
+            databaseURL: "https://smartwm-e1984-default-rtdb.firebaseio.com",
+            projectId: "smartwm-e1984",
+            storageBucket: "smartwm-e1984.appspot.com",
+            messagingSenderId: "339518167826",
+            appId: "1:339518167826:web:4fa186c8b60e798a7af1cb"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Function to load notifications
+        function loadNotifications() {
+            const notificationsRef = ref(db, "notifications");
+
+            onValue(notificationsRef, (snapshot) => {
+                const complaintsList = document.getElementById("complaints-list");
+                const driverList = document.getElementById("driver-list");
+
+                complaintsList.innerHTML = "";
+                driverList.innerHTML = "";
+
+                if (!snapshot.exists()) {
+                    complaintsList.innerHTML = "<p class='no-notifications'>No notifications available</p>";
+                    driverList.innerHTML = "<p class='no-notifications'>No notifications available</p>";
+                    return;
+                }
+
+                snapshot.forEach((childSnapshot) => {
+                    const data = childSnapshot.val();
+                    const notificationId = childSnapshot.key;
+                    const driverID = data.driver_id || "Unknown";
+                    const ward = data.ward || "Unknown Ward";
+                    const timestamp = data.timestamp || "Unknown Time";
+
+                    const notificationDiv = document.createElement("div");
+                    notificationDiv.classList.add("notification-card");
+                    notificationDiv.id = `notif_${notificationId}`;
+                    notificationDiv.innerHTML = `
+                        🚛 Driver ${driverID} (Ward: ${ward}) is absent 
+                        <span class="timestamp">🕒 ${timestamp}</span>
+                        <button class="clear-btn" onclick="clearNotification('${notificationId}')">Clear</button>
+                    `;
+
+                    driverList.appendChild(notificationDiv);
+                });
+            });
+        }
+
+        // Function to clear a notification
+        window.clearNotification = function(notificationId) {
+            const notificationElement = document.getElementById(`notif_${notificationId}`);
+            if (notificationElement) {
+                notificationElement.remove(); // Remove from UI
+            }
+            const notificationRef = ref(db, `notifications/${notificationId}`);
+            remove(notificationRef);
+        };
+
+        // Load notifications on page load
+        window.onload = loadNotifications;
+    </script>
+    
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            background-color: #1a1a2e;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+        }
+
+        .notification-card {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: #777;
+            margin-right: 10px;
+        }
+
+        .clear-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .clear-btn:hover {
+            background-color: #c82333;
+        }
+
+        .no-notifications {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <h2>Smart City Waste Management - Notifications</h2>
+    </div>
+
+    <!-- Notification Sections -->
+    <div class="container">
+
+        <!-- Section: Complaints from Public -->
+        <div class="notification-section" id="complaints-section">
+            <div class="section-title">📢 Complaints from Public</div>
+            <div id="complaints-list"></div>
+        </div>
+
+        <!-- Section: Driver Absence Alerts -->
+        <div class="notification-section" id="driver-details">
+            <div class="section-title">🚛 Driver Absence Alerts</div>
+            <div id="driver-list"></div>
+        </div>
+
+    </div>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

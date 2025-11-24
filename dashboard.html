@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Bin Map</title>
+
+    <!-- ✅ Firebase SDK (Compat Mode) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <!-- ✅ Google Maps API (Callback: `initMap` will be called automatically) -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD--unDZzPUSle6kGRfSZ8iXN819JoQKGc&callback=initMap"></script>
+
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Smart Waste Bin Locations</h2>
+    <div id="map"></div>
+
+    <script>
+        console.log("🔥 Initializing Firebase...");
+        
+        // 🔥 Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY_HERE",
+            authDomain: "smartwm-e1984.firebaseapp.com",
+            databaseURL: "https://smartwm-e1984-default-rtdb.firebaseio.com",
+            projectId: "smartwm-e1984",
+            storageBucket: "smartwm-e1984.appspot.com",
+            messagingSenderId: "339518167826",
+            appId: "1:339518167826:web:4fa186c8b60e798a7af1cb"
+        };
+
+        // ✅ Initialize Firebase in Compat Mode
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        console.log("✅ Firebase Initialized Successfully!");
+
+        // 🌍 Initialize Google Maps (This will be called automatically by Google Maps API)
+        function initMap() {
+            console.log("🌍 Initializing Google Map...");
+
+            const map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 17.3297, lng: 76.8343 }, // Default center
+                zoom: 14
+            });
+
+            console.log("📡 Fetching bin locations from Firebase...");
+
+            // Fetch bin locations from Firebase
+            database.ref("bins").once("value")
+                .then((snapshot) => {
+                    if (!snapshot.exists()) {
+                        console.warn("⚠️ No bins found in database.");
+                        return;
+                    }
+
+                    snapshot.forEach((childSnapshot) => {
+                        let bin = childSnapshot.val();
+                        console.log("📍 Bin Data:", bin); // Debugging
+
+                        if (!bin.latitude || !bin.longitude) {
+                            console.error(`❌ Invalid coordinates for ${bin.location}`);
+                            return;
+                        }
+
+                        let position = { lat: bin.latitude, lng: bin.longitude };
+
+                        // ✅ Ensure `status` is a valid number
+                        let status = bin.status ? parseInt(bin.status) : 0;
+                        let markerIcon = getMarkerColor(status);
+                        
+                        console.log(`📌 ${bin.location} - Status: ${status}, Icon: ${markerIcon}`);
+
+                        new google.maps.Marker({
+                            position: position,
+                            map: map,
+                            title: `${bin.location} - Fill Level: ${status}%`,
+                            icon: {
+                                url: markerIcon,
+                                scaledSize: new google.maps.Size(40, 40) // Rescale marker size
+                            }
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error("🔥 Error fetching bins from Firebase:", error);
+                });
+        }
+
+        // 🔴🟡🟢 Function to set marker color based on bin fill status
+        function getMarkerColor(status) {
+            if (status >= 80) {
+                return "icons/red.png";  // 🔴 Red (Needs collection)
+            } else if (status >= 50) {
+                return "icons/yellow.png";  // 🟡 Yellow (Half-full)
+            } else {
+                return "icons/green.png";  // 🟢 Green (Low fill)
+            }
+        }
+    </script>
+
+</body>
+</html>
